@@ -1,7 +1,7 @@
 {
     "name": "zqx/sql-translation",
     "type": "library",
-    "license": "BSD 3-Clause",
+    "license": "MIT",
     "keywords" : [
         "sql",
         "parser",
