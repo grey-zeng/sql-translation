@@ -34,7 +34,11 @@ class Translator {
     protected $ast;
 
 
-    public function setColumns($columns) {
+    public function setColumns($originColumns) {
+        $columns = [];
+        foreach ($originColumns as $originColumn) {
+            $columns[$originColumn['alias']] = $originColumn;
+        }
         $this->columns = $columns;
         return $this;
     }
@@ -58,7 +62,7 @@ class Translator {
         // 通过分词器获取token列表
         $tokenList = DirectScanner::splitToken($originFormula);
         // 将token转化成ast，变成树状结构
-        $this->ast = Ast::combineToken($tokenList);
+        $this->ast = Ast::combineToken($tokenList, $this);
         return $this;
     }
 
@@ -89,6 +93,9 @@ class Translator {
      * @return bool
      */
     public static function isValid($formula) {
+        if (!is_string($formula) && !is_numeric($formula)) {
+            return false;
+        }
         return !!preg_match(self::FORMULA_REG, $formula);
     }
 }

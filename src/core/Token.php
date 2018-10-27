@@ -10,6 +10,7 @@ namespace SQLTranslation\core;
 
 
 use Exception;
+use SQLTranslation\Translator;
 
 class Token {
     const ERROR_COLUMN = 1;
@@ -20,18 +21,31 @@ class Token {
     public $value;
     public $child = [];
     public $parent;
+    public $translator;
 
     /**
      * Token constructor.
      * @param array $token
+     * @param Translator $translator
      * @throws Exception
      */
-    public function __construct(array $token) {
+    public function __construct(array $token, $translator) {
         $this->type = $token['type'];
         $this->value = isset($token['value']) ? $token['value'] : '';
         if ($this->type == 'function' && !array_key_exists(strtolower($this->value), Meta::$supportFunc)) {
             throw new Exception('function not exits:' . $this->value, self::ERROR_FUNCTION);
         }
+        if ($this->type == 'column') {
+            if (!array_key_exists($this->value, $translator->columns)) {
+                throw new Exception('column not exits:' . $this->value, self::ERROR_FUNCTION);
+            }
+            $this->value = $translator->columns[$this->value]['column'];
+        }
+        $this->translator = $translator;
+    }
+
+    public function hashChild() {
+        return !empty($this->child);
     }
 
     public function getLastChild() {
@@ -97,13 +111,13 @@ class Token {
     public static function getDataType(token $token, $prevType = '') {
         switch ($token->type) {
             case 'column':
-                foreach (CompileFieldService::$columns as $column) {
+                foreach ($token->translator->columns as $column) {
                     if ($column['column'] == $token->value) {
                         $dataType = $column['type'];
                     }
                 }
                 if (!isset($dataType)) {
-                    foreach (CompileFieldService::$columns as $column) {
+                    foreach ($token->translator->columns as $column) {
                         if ($column['alias'] == $token->value) {
                             $dataType = $column['type'];
                         }

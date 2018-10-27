@@ -16,23 +16,24 @@ class Ast {
      * 语法分析-组合token树
      * 主要是按照function、操作符、括号包住的表达式 来进行父子多层树的划分，构成有层次的token树
      * @param array $tokens
+     * @param $translator
      * @return Token
      * @throws \Exception
      */
-    public static function combineToken($tokens) {
-        $tree = new Token(['type' => 'root']);
+    public static function combineToken($tokens, $translator) {
+        $tree = new Token(['type' => 'root'], $translator);
         $currentTree = &$tree;
         foreach ($tokens as $token) {
             switch ($token['type']) {
                 case '(':
                     // 进入函数参数区
-                    if ($currentTree->getLastChild()->type == 'function') {
+                    if ($currentTree->hashChild() && $currentTree->getLastChild()->type == 'function') {
                         $newNode = $currentTree->getLastChild();
                         $newNode->setParent($currentTree);
                         $currentTree = $newNode;
                     } else {
                         // 认为是计算表达式
-                        $newNode = new Token(['type' => 'brackets']);
+                        $newNode = new Token(['type' => 'brackets'], $translator);
                         $newNode->setParent($currentTree);
                         $currentTree->addChild($newNode);
                         $currentTree = $newNode;
@@ -55,7 +56,7 @@ class Ast {
                     while ($currentTree->isComplete()) {
                         $currentTree = $currentTree->parent;
                     }
-                    $newNode = new Token(['type' => 'expr', 'value' => $token['value']]);
+                    $newNode = new Token(['type' => 'expr', 'value' => $token['value']], $translator);
                     $newNode->addChild(array_pop($currentTree->child));
                     $currentTree->addChild($newNode);
                     $newNode->setParent($currentTree);
@@ -66,7 +67,7 @@ class Ast {
                     while ($currentTree->isComplete()) {
                         $currentTree = $currentTree->parent;
                     }
-                    $currentTree->addChild(new Token($token));
+                    $currentTree->addChild(new Token($token, $translator));
                     break;
             }
         };
