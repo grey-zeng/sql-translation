@@ -6,17 +6,26 @@
 ## 步骤分析
 ### 1. 分词
 
-分词采用直接扫描法：
+使用正则进行分词：
 ```
+使用正则表达式来做nfa匹配
+    const REG_EMPTY     = '/^([\s,]+)/';                                    // 空值或者逗号
+    const REG_STATEMENT = '/^(while)(\s)?\(/';                              // 预定义关键字
+    const REG_FUNCTION  = '/^(\w+)(\s)?\(/';                                // 函数，类似funcName(
+    const REG_BRACKET   = '/^(\(|\))/';                                     // 左右括号
+    const REG_COLUMN    = '/^(\[([\x{4e00}-\x{9fa5}a-zA-Z0-9_\-]+)\])/u';   // 匹配使用[]包含的自定义字段，需要使用Unicode解析中文
+    const REG_NUMBER    = '/^((-?\d+)(\.\d+){0,1})/';                       // 正负整型及浮点数
+    const REG_STRING    = '/^((\'|\")([\s\S]+?)(\2))/';                     // 使用""或者''闭合的字符串，需要非贪婪匹配
+    const REG_OPERATOR  = '/^(\+|\-|\*|\/|(>|<)(=)?|=|\&+|\|+)/';           // 匹配操作符
+
 $tokenList = [];
-for($i; $i < len($str), $i++) {
-  if 是数字 then 向右扫描,将整个数字塞入tokenList
-  else if 是运算符or括号 then 塞入tokenList
-  else if 是字符串 then 
-     if 判断后面带( then 标识为函数
-     else 标识为字符串
-  else if 为[开头 then 向右偏移找到]，标识为字段
-  else ...
+while (!empyt($str)) {
+    foreach (REG_LIST as REG) {
+        if preg_match(REG, $str) {
+            $tokenList = 捕获的内容
+            $str = substr($str, len(命中的内容)); // 向右遍历
+        }
+    }
 }
 ```
 得到tokenList：

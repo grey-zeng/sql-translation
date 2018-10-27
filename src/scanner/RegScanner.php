@@ -17,14 +17,14 @@ use SQLTranslation\core\Token;
  */
 class RegScanner {
 
-    const REG_EMPTY     = '/^([\s|,]+)/';
+    const REG_EMPTY     = '/^([\s,]+)/';
     const REG_STATEMENT = '/^(while)(\s)?\(/';
     const REG_FUNCTION  = '/^(\w+)(\s)?\(/';
     const REG_BRACKET   = '/^(\(|\))/';
     const REG_COLUMN    = '/^(\[([\x{4e00}-\x{9fa5}a-zA-Z0-9_\-]+)\])/u';   // 使用Unicode解析
     const REG_NUMBER    = '/^((-?\d+)(\.\d+){0,1})/';
     const REG_STRING    = '/^((\'|\")([\s\S]+?)(\2))/';                     // 需要非贪婪匹配
-    const REG_OPERATOR  = '/^(\+|\-|\*|\/|(>|<)(=)?|=|\&|\|)/';
+    const REG_OPERATOR  = '/^(\+|\-|\*|\/|(>|<)(=)?|=|\&+|\|+)/';
 
 
     /**
