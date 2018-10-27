@@ -10,12 +10,23 @@ namespace SQLTranslation\core;
 
 
 class Meta {
-// 对照下方的数据类型转化表
-    private static $typeState = [
-        'number' => ['int', 'float', 'date'],
-        'string' => ['dateStr', 'timestamp'],
-        'dateStr' => ['timestamp'],
-        'time' => ['string', 'dateStr', 'timestamp', 'date']
+    
+    const DATA_TYPE_INT = 'int';
+    const DATA_TYPE_FLOAT = 'float';
+    const DATA_TYPE_DATE = 'date';
+    const DATA_TYPE_DATE_STR = 'dateStr';
+    const DATA_TYPE_TIMESTAMP = 'timestamp';
+    const DATA_TYPE_STRING = 'string';
+    const DATA_TYPE_NUMBER = 'number';
+    const DATA_TYPE_TIME = 'time';
+    const DATA_TYPE_ANY = 'any';
+    
+    // 对照下方的数据类型转化表
+    const TYPE_STATE = [
+        self::DATA_TYPE_NUMBER   => [self::DATA_TYPE_INT, self::DATA_TYPE_FLOAT, self::DATA_TYPE_DATE],
+        self::DATA_TYPE_STRING   => [self::DATA_TYPE_DATE_STR, self::DATA_TYPE_TIMESTAMP],
+        self::DATA_TYPE_DATE_STR => [self::DATA_TYPE_TIMESTAMP],
+        self::DATA_TYPE_TIME     => [self::DATA_TYPE_STRING, self::DATA_TYPE_DATE_STR, self::DATA_TYPE_TIMESTAMP, self::DATA_TYPE_DATE]
     ];
 
     /**
@@ -41,7 +52,7 @@ class Meta {
     }
 
     private static function _checkTypeCorrect($funcInput, $paramType) {
-        return $funcInput == 'any' || $funcInput == $paramType || in_array($paramType, self::$typeState[$funcInput]);
+        return $funcInput == 'any' || $funcInput == $paramType || in_array($paramType, self::TYPE_STATE[$funcInput]);
     }
 
     // pgsql常用函数：http://blog.csdn.net/sun5769675/article/details/50628979
@@ -49,197 +60,198 @@ class Meta {
     public static $supportFunc = [
         // 聚合
         'avg' => [
-            'in' => 'number',
-            'out' => 'number'
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'max' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'min' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
         ]
-        , 'max' => [
-            'in' => 'number',
-            'out' => 'number'
-        ]
-        , 'min' => [
-            'in' => 'number',
-            'out' => 'number'
-        ]
-        , 'sum' => [
-            'in' => 'number',
-            'out' => 'number'
-        ]
-        , 'count' => [
-            'in' => 'any',
-            'out' => 'number'
-        ]
-        , 'count_distinct' => [
-            'in' => 'any',
-            'out' => 'number'
-        ]
+        , 
+        'sum' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'count' => [
+            'in' => self::DATA_TYPE_ANY,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'count_distinct' => [
+            'in' => self::DATA_TYPE_ANY,
+            'out' => self::DATA_TYPE_NUMBER
+        ],
         // 数值
-        , 'abs' => [
-            'in' => 'number',
-            'out' => 'number'
+        'abs' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'ceil' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
         ]
-        , 'ceil' => [
-            'in' => 'number',
-            'out' => 'number'
-        ]
-        , 'floor' => [
-            'in' => 'number',
-            'out' => 'number'
-        ]
-        , 'ln' => [
-            'in' => 'number',
-            'out' => 'number'
-        ]
-        , 'log' => [
-            'in' => 'number',
-            'out' => 'number'
-        ]
-        , 'pow' => [
-            'in' => 'number',
-            'out' => 'number'
-        ]
-        , 'rand' => [
-            'in' => 'any',
-            'out' => 'number'
-        ]
-        , 'round' => [
-            'in' => 'number',
-            'out' => 'number'
-        ]
+        , 
+        'floor' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'ln' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'log' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'pow' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'rand' => [
+            'in' => self::DATA_TYPE_ANY,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'round' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_NUMBER
+        ],
         // 字符串
-        , 'concat' => [
-            'in' => 'any',
-            'out' => 'string'
-        ]
-        , 'base64_decode' => [
-            'in' => 'string',
-            'out' => 'string'
-        ]
-        , 'base64_encode' => [
-            'in' => 'string',
-            'out' => 'string'
-        ]
-        , 'length' => [
-            'in' => 'string',
-            'out' => 'number'
-        ]
-        , 'lower' => [
-            'in' => 'string',
-            'out' => 'string'
-        ]
-        , 'reverse' => [
-            'in' => 'string',
-            'out' => 'string'
-        ]
-        , 'repeat' => [
-            'in' => ['string', 'number'],
-            'out' => 'string'
-        ]
-        , 'substr' => [
-            'in' => ['string', 'number'],
-            'out' => 'string'
-        ]
-        , 'trim' => [
-            'in' => 'string',
-            'out' => 'string'
-        ]
-        , 'upper' => [
-            'in' => 'string',
-            'out' => 'string'
-        ]
+        'concat' => [
+            'in' => self::DATA_TYPE_ANY,
+            'out' => self::DATA_TYPE_STRING
+        ], 
+        'base64_decode' => [
+            'in' => self::DATA_TYPE_STRING,
+            'out' => self::DATA_TYPE_STRING
+        ], 
+        'base64_encode' => [
+            'in' => self::DATA_TYPE_STRING,
+            'out' => self::DATA_TYPE_STRING
+        ], 
+        'length' => [
+            'in' => self::DATA_TYPE_STRING,
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'lower' => [
+            'in' => self::DATA_TYPE_STRING,
+            'out' => self::DATA_TYPE_STRING
+        ], 
+        'reverse' => [
+            'in' => self::DATA_TYPE_STRING,
+            'out' => self::DATA_TYPE_STRING
+        ], 
+        'repeat' => [
+            'in' => [self::DATA_TYPE_STRING, self::DATA_TYPE_NUMBER],
+            'out' => self::DATA_TYPE_STRING
+        ], 
+        'substr' => [
+            'in' => [self::DATA_TYPE_STRING, self::DATA_TYPE_NUMBER],
+            'out' => self::DATA_TYPE_STRING
+        ], 
+        'trim' => [
+            'in' => self::DATA_TYPE_STRING,
+            'out' => self::DATA_TYPE_STRING
+        ], 
+        'upper' => [
+            'in' => self::DATA_TYPE_STRING,
+            'out' => self::DATA_TYPE_STRING
+        ],
         // 时间
-        // todo 需要进一步补全函数
-        , 'from_unixtime' => [
-            'in' => 'number',
-            'out' => 'timestamp'
-        ]
-        , 'time_convert' => [
-            'in' => 'number',
-            'out' => 'timestamp'
-        ], 'day' => [
-            'in' => 'time',
-            'out' => 'int'
-        ]
-        , 'hour' => [
-            'in' => 'time',
-            'out' => 'int'
-        ]
-        , 'month' => [
-            'in' => 'time',
-            'out' => 'int'
-        ]
-        , 'minute' => [
-            'in' => 'time',
-            'out' => 'int'
-        ]
-        , 'now' => [
-            'in' => 'any',
-            'out' => 'timestamp'
-        ]
-        , 'quarter' => [
-            'in' => 'time',
-            'out' => 'int'
-        ]
-        , 'week' => [
-            'in' => 'time',
-            'out' => 'int'
-        ]
-        , 'year' => [
-            'in' => 'time',
-            'out' => 'int'
-        ]
-        , 'date_add' => [
-            'in' => ['time', 'number'],
-            'out' => 'time'
-        ]
-        , 'date_sub' => [
-            'in' => ['time', 'number'],
-            'out' => 'time'
-        ]
-        , 'day_diff' => [
-            'in' => ['time', 'time'],
-            'out' => 'number'
-        ]
-        , 'date_diff' => [
-            'in' => ['time', 'time'],
-            'out' => 'number'
-        ]
-        , 'hour_diff' => [
-            'in' => ['time', 'time'],
-            'out' => 'number'
-        ]
-        , 'minute_diff' => [
-            'in' => ['time', 'time'],
-            'out' => 'number'
-        ]
-        , 'month_diff' => [
-            'in' => ['time', 'time'],
-            'out' => 'number'
-        ]
-        , 'second_diff' => [
-            'in' => ['time', 'time'],
-            'out' => 'number'
-        ]
-        , 'year_diff' => [
-            'in' => ['time', 'time'],
-            'out' => 'number'
-        ]
-        , 'to_date' => [
-            'in' => 'time',
-            'out' => 'string'
-        ]
+        'from_unixtime' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_TIMESTAMP
+        ], 
+        'time_convert' => [
+            'in' => self::DATA_TYPE_NUMBER,
+            'out' => self::DATA_TYPE_TIMESTAMP
+        ], 
+        'day' => [
+            'in' => self::DATA_TYPE_TIME,
+            'out' => self::DATA_TYPE_INT
+        ], 
+        'hour' => [
+            'in' => self::DATA_TYPE_TIME,
+            'out' => self::DATA_TYPE_INT
+        ], 
+        'month' => [
+            'in' => self::DATA_TYPE_TIME,
+            'out' => self::DATA_TYPE_INT
+        ], 
+        'minute' => [
+            'in' => self::DATA_TYPE_TIME,
+            'out' => self::DATA_TYPE_INT
+        ], 
+        'now' => [
+            'in' => self::DATA_TYPE_ANY,
+            'out' => self::DATA_TYPE_TIMESTAMP
+        ], 
+        'quarter' => [
+            'in' => self::DATA_TYPE_TIME,
+            'out' => self::DATA_TYPE_INT
+        ], 
+        'week' => [
+            'in' => self::DATA_TYPE_TIME,
+            'out' => self::DATA_TYPE_INT
+        ], 
+        'year' => [
+            'in' => self::DATA_TYPE_TIME,
+            'out' => self::DATA_TYPE_INT
+        ], 
+        'date_add' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_NUMBER],
+            'out' => self::DATA_TYPE_TIME
+        ], 
+        'date_sub' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_NUMBER],
+            'out' => self::DATA_TYPE_TIME
+        ], 
+        'day_diff' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_TIME],
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'date_diff' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_TIME],
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'hour_diff' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_TIME],
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'minute_diff' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_TIME],
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'month_diff' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_TIME],
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'second_diff' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_TIME],
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'year_diff' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_TIME],
+            'out' => self::DATA_TYPE_NUMBER
+        ], 
+        'to_date' => [
+            'in' => self::DATA_TYPE_TIME,
+            'out' => self::DATA_TYPE_STRING
+        ],
+        'period_diff' => [
+            'in' => [self::DATA_TYPE_TIME, self::DATA_TYPE_TIME],
+            'out' => self::DATA_TYPE_NUMBER
+        ],
         // 逻辑
-        , 'if' => [
-            'in' => 'any',
-            'out' => 'any'
-        ]
-        , 'coalesce' => [
-            'in' => 'any',
-            'out' => 'any'
-        ]
-        // 自定义追加
-        , 'period_diff' => [
-            'in' => ['time', 'time'],
-            'out' => 'number'
+        'if' => [
+            'in' => self::DATA_TYPE_ANY,
+            'out' => self::DATA_TYPE_ANY
+        ], 
+        'coalesce' => [
+            'in' => self::DATA_TYPE_ANY,
+            'out' => self::DATA_TYPE_ANY
         ],
     ];
 }

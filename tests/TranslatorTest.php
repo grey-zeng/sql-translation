@@ -9,80 +9,81 @@
 namespace SQLTranslation\tests;
 
 use PHPUnit\Framework\TestCase;
+use SQLTranslation\core\Meta;
 use SQLTranslation\Translator;
 
 class TranslatorTest extends TestCase {
 
     static $columns = [
-        '第一' => [
+        [
             'alias' => '第一',
             'column' => 'column_1',
-            'type' => 'number'
+            'type' => Meta::DATA_TYPE_NUMBER
         ],
-        '第二' => [
+        [
             'alias' => '第二',
             'column' => 'column_2',
-            'type' => 'string'
+            'type' => Meta::DATA_TYPE_STRING
         ],
-        '第三' => [
+        [
             'alias' => '第三',
             'column' => 'column_3',
-            'type' => 'date'
+            'type' => Meta::DATA_TYPE_DATE
         ],
-        '第四' => [
+        [
             'alias' => '第四',
             'column' => 'column_4',
-            'type' => 'dateStr'
+            'type' => Meta::DATA_TYPE_DATE_STR
         ],
-        'int' => [
+        [
             'alias' => 'int',
             'column' => 'c_int',
-            'type' => 'int'
+            'type' => Meta::DATA_TYPE_INT
         ],
-        'float' => [
+        [
             'alias' => 'float',
             'column' => 'c_float',
-            'type' => 'float'
+            'type' => Meta::DATA_TYPE_FLOAT
         ],
-        'number' => [
+        [
             'alias' => 'number',
             'column' => 'c_number',
-            'type' => 'number'
+            'type' => Meta::DATA_TYPE_NUMBER
         ],
-        'string' => [
+        [
             'alias' => 'string',
             'column' => 'c_string',
-            'type' => 'string'
+            'type' => Meta::DATA_TYPE_STRING
         ],
-        'date' => [
+        [
             'alias' => 'date',
             'column' => 'c_date',
-            'type' => 'date'
+            'type' => Meta::DATA_TYPE_DATE
         ],
-        'dateStr' => [
+        [
             'alias' => 'dateStr',
             'column' => 'c_dateStr',
-            'type' => 'dateStr'
+            'type' => Meta::DATA_TYPE_DATE_STR
         ],
-        'time' => [
+        [
             'alias' => 'time',
             'column' => 'c_time',
-            'type' => 'time'
+            'type' => Meta::DATA_TYPE_TIME
         ],
-        'timestamp' => [
+        [
             'alias' => 'timestamp',
             'column' => 'c_timestamp',
-            'type' => 'timestamp'
+            'type' => Meta::DATA_TYPE_TIMESTAMP
         ],
-        'test_a' => [
+        [
             'alias' => 'test_a',
             'column' => 'c_test_a',
-            'type' => 'string'
+            'type' => Meta::DATA_TYPE_STRING
         ],
-        'test_b' => [
+        [
             'alias' => 'test_b',
             'column' => 'c_test_b',
-            'type' => 'string'
+            'type' => Meta::DATA_TYPE_STRING
         ]
     ];
 

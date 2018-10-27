@@ -32,12 +32,14 @@ abstract class BaseCodeGen {
      */
     public function generator(Token $token) {
         switch ($token->type) {
-            case 'root':
+            // 根节点直接返回
+            case Token::TYPE_ROOT:
                 return array_reduce($token->child, function ($prev, $node) {
                     return $prev . $this->generator($node);
                 }, '');
                 break;
-            case 'function':
+            // 函数需要进行求子元素
+            case Token::TYPE_FUNCTION:
                 $params = [];
                 foreach ($token->child as $param) {
                     $params[] = [
@@ -46,22 +48,29 @@ abstract class BaseCodeGen {
                     ];
                 }
                 return $this->translateFunction(strtolower($token->value), $params);
-            case 'string':
+            // 字符串使用双引号显示包含起来
+            case Token::TYPE_STRING:
                 return '"' . addslashes($token->value) . '"';
-            case 'column':
+            // 字段类型支持设置前缀转码，同时也需要用符号包含起来
+            case Token::TYPE_COLUMN:
                 return $this->wrapperColumn($token->value);
-            case 'expr':
+            // 仅支持二元运算公式，返回拼接后的公式字符串
+            case Token::TYPE_EXPRESSION:
                 $params = array_map(function ($token) {
                     return $this->generator($token);
                 }, $token->child);
                 list($firstParam, $secondParam) = $this->wrapperExpr($token->value, $params);
                 return $firstParam . $token->value . $secondParam;
-            case 'brackets':
+            // 认为是用括号包含起来的代码块，直接包含后返回
+            case Token::TYPE_BRACKETS:
                 return array_reduce($token->child, function ($res, $token) {
                         return $res . $this->generator($token);
-                    }, '(') . ')';
-            case 'number':
+                }, '(') . ')';
+            // 常规类型直接返回
+            case Token::TYPE_NUMBER:
                 return $token->value;
+            // todo 关键字：用于循环、分支判断等
+            case Token::TYPE_STATEMENT:
             default :
                 throw new \Exception($token->type . ' is undefined');
         }
@@ -91,31 +100,5 @@ abstract class BaseCodeGen {
 
     protected function wrapperExpr($expr, $params) {
         return $params;
-    }
-
-    /**
-     * @param $timeFormat
-     * @param $dataType
-     * @param $fname
-     * @param $isMysql
-     * @return string
-     * @throws \Exception
-     */
-    protected static function getTime2Sql($timeFormat, $dataType, $fname, $isMysql) {
-        if ($dataType == 'date') {
-            $granularityItem = $isMysql ? sprintf("from_unixtime(%s, '%s')", $fname, $timeFormat)
-                : sprintf("(to_char( to_timestamp(%s), '%s') )", $fname, $timeFormat);
-        } elseif ($dataType == 'dateStr' || $dataType == 'time') {
-            $granularityItem = $isMysql ?
-                sprintf("from_unixtime(unix_timestamp(%s), '%s')", $fname, $timeFormat)
-                : sprintf("(to_char( to_timestamp(%s, 'YYYY-MM-DD HH24:MI:SS'), '%s') )", $fname, $timeFormat);
-        } elseif ($dataType == 'timestamp') {
-            $granularityItem = $isMysql ?
-                sprintf("date_format(%s, '%s')", $fname, $timeFormat)
-                : sprintf("(to_char( %s, '%s') )", $fname, $timeFormat);
-        } else {
-            throw new \Exception('错误的数据类型');
-        }
-        return $granularityItem;
     }
 }

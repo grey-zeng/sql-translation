@@ -9,6 +9,8 @@
 namespace SQLTranslation\scanner;
 
 
+use SQLTranslation\core\Token;
+
 class DirectScanner {
     /**
      * 词法分析-分割token 采用直接扫描法
@@ -22,38 +24,42 @@ class DirectScanner {
         while ($index < strlen($formula)) {
             // token类型有：[字段],数字,字符,公式,操作符,空格,()
             $ch = $formula[$index];
-            // 空格或逗号
+            // 空格或逗号至直接忽略
             if ($ch == ' ' || $ch == ',') {
                 $index++;
-            } // ()
+            }
+            // 括号
             elseif ($ch == '(' || $ch == ')') {
                 $token[] = [
-                    'type' => $ch,
+                    'type' => $ch == '('? Token::TYPE_BRACKET_LEFT: Token::TYPE_BRACKET_RIGHT,
                     'value' => $ch
                 ];
                 $index++;
-            } // 字段类型
+            }
+            // 使用[]包含的字段类型
             elseif ($ch == '[') {
                 $word = '';
                 while ($formula[++$index] != ']') {
                     $word .= $formula[$index];
                 }
                 $token[] = [
-                    'type' => 'column',
+                    'type' => Token::TYPE_COLUMN,
                     'value' => $word
                 ];
                 $index++;
-            } // 数字
+            }
+            // 数字
             elseif (strstr('0123465789.', $ch)) {
                 $word = $ch;
                 while (strstr('0123465789.', $formula[++$index])) {
                     $word .= $formula[$index];
                 }
                 $token[] = [
-                    'type' => 'number',
+                    'type' => Token::TYPE_NUMBER,
                     'value' => floatval($word)
                 ];
-            } // 字符
+            }
+            // 字符串
             elseif ($ch == '\'' || $ch == '"') {
                 $left = $ch;
                 $word = '';
@@ -66,10 +72,11 @@ class DirectScanner {
                 }
                 $index++;
                 $token[] = [
-                    'type' => 'string',
+                    'type' => Token::TYPE_STRING,
                     'value' => stripslashes($word)
                 ];
-            } // 操作符
+            }
+            // 四则运行符、比较符、逻辑运算符
             elseif (in_array($ch, ['<', '>', '=', '+', '-', '*', '/', '%', '&', '|'])) {
                 $word = $ch;
                 $index ++;
@@ -78,17 +85,18 @@ class DirectScanner {
                     $index++;
                 }
                 $token[] = [
-                    'type' => 'operator',
+                    'type' => Token::TYPE_OPERATOR,
                     'value' => $word
                 ];
-            } // 函数 禁止数字开头的函数
+            }
+            // 函数 禁止数字开头的函数
             elseif (is_string($ch)) {
                 $word = $ch;
                 while ($formula[++$index] != '(') {
                     $word .= $formula[$index];
                 }
                 $token[] = [
-                    'type' => 'function',
+                    'type' => Token::TYPE_FUNCTION,
                     'value' => strtolower($word)
                 ];
             }

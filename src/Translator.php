@@ -24,7 +24,7 @@ class Translator {
     const DB_PGSQL = 'pgsql';
 
     /** @var [] 字段列表 */
-    public $columns;
+    public $columns = [];
     /** @var string|null 字段别名前缀 */
     public $columnPrefix;
     /** @var string db类型 */

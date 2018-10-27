@@ -21,42 +21,42 @@ class Ast {
      * @throws \Exception
      */
     public static function combineToken($tokens, $translator) {
-        $tree = new Token(['type' => 'root'], $translator);
+        $tree = new Token(['type' => Token::TYPE_ROOT], $translator);
         $currentTree = &$tree;
         foreach ($tokens as $token) {
             switch ($token['type']) {
-                case '(':
+                case Token::TYPE_BRACKET_LEFT:
                     // 进入函数参数区
-                    if ($currentTree->hashChild() && $currentTree->getLastChild()->type == 'function') {
+                    if ($currentTree->hashChild() && $currentTree->getLastChild()->type == Token::TYPE_FUNCTION) {
                         $newNode = $currentTree->getLastChild();
                         $newNode->setParent($currentTree);
                         $currentTree = $newNode;
                     } else {
                         // 认为是计算表达式
-                        $newNode = new Token(['type' => 'brackets'], $translator);
+                        $newNode = new Token(['type' => Token::TYPE_BRACKETS], $translator);
                         $newNode->setParent($currentTree);
                         $currentTree->addChild($newNode);
                         $currentTree = $newNode;
                     }
                     break;
-                case ')':
+                case Token::TYPE_BRACKET_RIGHT:
                     while ($currentTree->isComplete()) {
                         $currentTree = $currentTree->parent;
                     }
                     // 从函数参数区出来
-                    if ($currentTree->type == 'function') {
+                    if ($currentTree->type == Token::TYPE_FUNCTION) {
                         $currentTree->checkParam();
                         $currentTree = $currentTree->parent;
-                    } elseif ($currentTree->type == 'brackets') {
+                    } elseif ($currentTree->type == Token::TYPE_BRACKETS) {
                         $currentTree = $currentTree->parent;
                     }
                     break;
                 // 将operator全部转成expr类型 替换掉上层节点
-                case 'operator':
+                case Token::TYPE_OPERATOR:
                     while ($currentTree->isComplete()) {
                         $currentTree = $currentTree->parent;
                     }
-                    $newNode = new Token(['type' => 'expr', 'value' => $token['value']], $translator);
+                    $newNode = new Token(['type' => Token::TYPE_EXPRESSION, 'value' => $token['value']], $translator);
                     $newNode->addChild(array_pop($currentTree->child));
                     $currentTree->addChild($newNode);
                     $newNode->setParent($currentTree);

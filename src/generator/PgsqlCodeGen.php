@@ -90,7 +90,7 @@ class PgsqlCodeGen extends BaseCodeGen {
             case 'if':
                 return "(case when {$params[0]['value']} IS NOT NULL then {$params[1]['value']} else {$params[2]['value']} end)";
             case 'to_date':
-                return self::getTime2Sql('YYYY-MM-DD', $params[0]['type'], $params[0]['value'], false);
+                return self::getTime2Sql('YYYY-MM-DD', $params[0]['type'], $params[0]['value']);
             default:
         }
         // 默认直接返回function(param1, param2 + param3, function(param4), ...)
@@ -121,5 +121,25 @@ class PgsqlCodeGen extends BaseCodeGen {
             default:
                 throw new \Exception('error timestamp type:' . $type);
         }
+    }
+
+    /**
+     * @param $timeFormat
+     * @param $dataType
+     * @param $fname
+     * @return string
+     * @throws \Exception
+     */
+    protected static function getTime2Sql($timeFormat, $dataType, $fname) {
+        if ($dataType == 'date') {
+            $granularityItem = sprintf("(to_char( to_timestamp(%s), '%s') )", $fname, $timeFormat);
+        } elseif ($dataType == 'dateStr' || $dataType == 'time') {
+            $granularityItem = sprintf("(to_char( to_timestamp(%s, 'YYYY-MM-DD HH24:MI:SS'), '%s') )", $fname, $timeFormat);
+        } elseif ($dataType == 'timestamp') {
+            $granularityItem = sprintf("(to_char( %s, '%s') )", $fname, $timeFormat);
+        } else {
+            throw new \Exception('错误的数据类型');
+        }
+        return $granularityItem;
     }
 }

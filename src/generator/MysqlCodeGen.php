@@ -69,7 +69,7 @@ class MysqlCodeGen extends BaseCodeGen {
                 $second = self::tranMySqlTimestamp($params[1]['value'], $params[1]['type']);
                 return "datediff({$first}, {$second})";
             case 'to_date':
-                return self::getTime2Sql('%Y-%m-%d', $params[0]['type'], $params[0]['value'], true);
+                return self::getTime2Sql('%Y-%m-%d', $params[0]['type'], $params[0]['value']);
             // mysql独有函数
             case 'period_diff':
                 $firstColumn = self::tranMySqlTimestamp($params[0]['value'], $params[0]['type']);
@@ -107,5 +107,25 @@ class MysqlCodeGen extends BaseCodeGen {
             default:
                 throw new \Exception('error timestamp type:' . $type);
         }
+    }
+
+    /**
+     * @param $timeFormat
+     * @param $dataType
+     * @param $fname
+     * @return string
+     * @throws \Exception
+     */
+    protected static function getTime2Sql($timeFormat, $dataType, $fname) {
+        if ($dataType == 'date') {
+            $granularityItem = sprintf("from_unixtime(%s, '%s')", $fname, $timeFormat);
+        } elseif ($dataType == 'dateStr' || $dataType == 'time') {
+            $granularityItem = sprintf("from_unixtime(unix_timestamp(%s), '%s')", $fname, $timeFormat);
+        } elseif ($dataType == 'timestamp') {
+            $granularityItem = sprintf("date_format(%s, '%s')", $fname, $timeFormat);
+        } else {
+            throw new \Exception('错误的数据类型');
+        }
+        return $granularityItem;
     }
 }
