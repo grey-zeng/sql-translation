@@ -113,7 +113,8 @@ class TranslatorTest extends TestCase {
                 'out' => '1+(cast(2 as numeric)/cast((3+4) as numeric))'
             ],
             [
-                'in' => 'abs([第一])/[第二]',
+                'in' => 'abs([第一])
+                /[第二]',
                 'out' => 'cast(abs("column_1") as numeric)/cast("column_2" as numeric)'
             ],
             [

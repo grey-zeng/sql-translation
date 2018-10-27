@@ -13,6 +13,7 @@ use SQLTranslation\generator\MysqlCodeGen;
 use SQLTranslation\generator\PgsqlCodeGen;
 use SQLTranslation\parser\Ast;
 use SQLTranslation\scanner\DirectScanner;
+use SQLTranslation\scanner\RegScanner;
 
 class Translator {
 
@@ -60,7 +61,8 @@ class Translator {
             throw new \Exception('公式不符合定义');
         }
         // 通过分词器获取token列表
-        $tokenList = DirectScanner::splitToken($originFormula);
+        $tokenList = RegScanner::splitToken($originFormula);
+//        $tokenList = DirectScanner::splitToken($originFormula);
         // 将token转化成ast，变成树状结构
         $this->ast = Ast::combineToken($tokenList, $this);
         return $this;
