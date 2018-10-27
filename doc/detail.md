@@ -53,7 +53,7 @@ foreach ($tokenList as $token) {
         case 运算符
             标识为计算表达式，合并节点内容
         默认
-            生成token并把token加到当前节点的子节点列表中
+            生成token并把token加到当前节点的子节点列表中
     }
 }
 ```
@@ -97,10 +97,10 @@ function generator($token) {
 ```
 /**
  * @param string $funcName 函数名
- * @param array $params [[val=>参数sql, type=>数据类型], ... ]
+ * @param array $params [[val=>参数sql, type=>数据类型], ... ]
  */
 function translatFunciton($funcName, $parmas) {
-    // 显示指定函数对应的转化规则
+    // 显示指定函数对应的转化规则
     switch ($funcName) {
         case 函数名: 返回`函数名(预定义参数, 参数sql1, 参数sql2, ...)` 
         case 其他: 返回自定义规则，比如携带自定义参数、改写函数名等

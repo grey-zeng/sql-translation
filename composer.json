@@ -1,7 +1,7 @@
 {
     "name": "zqx/sql-translation",
     "type": "library",
-    "license": "Apache License 2.0",
+    "license": "BSD 3-Clause",
     "keywords" : [
         "sql",
         "parser",

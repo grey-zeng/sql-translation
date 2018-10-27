@@ -3,7 +3,7 @@
  
  ## 安装
  推荐使用composer进行安装，然后引用vendor/autoload.php即可
- > composer require maatwebsite/excel
+ > composer require zqx/sql-translation
  
  ## What
  * 将自定义的sql伪码转换成MySQL/PostgreSQL可执行sql代码；
