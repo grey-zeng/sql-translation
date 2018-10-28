@@ -88,7 +88,7 @@ class RegScannerTest extends TestCase {
         $this->assertEquals("1 1-\n", $matches3[3]);
         $this->assertEquals(1, preg_match(RegScanner::REG_STRING, '"前期", "后期"', $matches4));
         $this->assertEquals('前期', $matches4[3]);
-
+        $this->assertEquals(1, preg_match(RegScanner::REG_STRING, '""', $matches5));
 
         $this->assertEquals(0, preg_match(RegScanner::REG_NUMBER, '"234\''));
     }
