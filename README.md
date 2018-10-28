@@ -39,8 +39,10 @@ $translator->setColumns($columns);
 ```
 $input='date_diff([时间],[新登时间])';
 
-// 编译得到:datediff(`retime`, `first_login_time`)
-$sqlDateDiff = $translator->compile($input)->translate();
+// 默认MySQL编译得到:datediff(`retime`, `first_login_time`)
+$mySqlDateDiff = $translator->compile($input)->translate();
+// PostgreSQL环境下为:("retime"::date-"first_login_time"::date) 
+$pgSqlDateDiff = $translator->compile($input)->translate(Translator::DB_PGSQL);
 ```
 
 具体示例可看：[demo.php](https://github.com/grey-zeng/sql-translation/blob/master/example/demo.php)
@@ -57,7 +59,7 @@ $sqlDateDiff = $translator->compile($input)->translate();
 
 使用正则进行分词：
 ```
-使用正则表达式来做nfa匹配
+使用正则表达式来做nfa匹配
     const REG_EMPTY     = '/^([\s,]+)/';                                    // 空值或者逗号
     const REG_STATEMENT = '/^(while|declare)(\s)?\(/';                      // 预定义关键字，目前支持while和declare
     const REG_FUNCTION  = '/^(\w+)(\s)?\(/';                                // 函数，类似funcName(
@@ -65,7 +67,7 @@ $sqlDateDiff = $translator->compile($input)->translate();
     const REG_COLUMN    = '/^(\[([\x{4e00}-\x{9fa5}a-zA-Z0-9_\-]+)\])/u';   // 匹配使用[]包含的自定义字段，需要使用Unicode解析中文
     const REG_NUMBER    = '/^((-?\d+)(\.\d+){0,1})/';                       // 正负整型及浮点数
     const REG_STRING    = '/^((\'|\")([\s\S]*?)(\2))/';                     // 使用""或者''闭合的字符串，需要非贪婪匹配
-    const REG_OPERATOR  = '/^(\+|\-|\*|\/|(>|<)(=)?|=|\&+|\|+)/';           // 匹配操作符
+    const REG_OPERATOR  = '/^(\+|\-|\*|\/|(>|<)(=)?|=|\&+|\|+)/';           // 匹配操作符
     const REG_BRACE     = '/^({|})/';                                       // 匹配花括号
     const REG_VARIABLE  = '/^(@\w+)/';                                      // 运行时变量，如mysql的`select @num:=1`,其中的@num
 
@@ -103,7 +105,7 @@ while (!empyt($str)) {
 
 #### 2. 解析
 
-语法分析部分，使用从底向上的思路，定义S为原语，同时可以通过传入运算符、函数、括号、语句声明生成4种状态的复合S。
+语法分析使用从底向上的方式，定义S为原语，同时可以通过传入运算符、函数、括号、关键字生成4种状态的复合S。
 ![状态](./doc/LR过程.jpg)
 
 ```
@@ -113,7 +115,7 @@ foreach ($tokenList as $token) {
     switch($token->type) {
         case 左括号
             if tree的末尾是函数 then 替换tree为函数节点进入I2
-            else if tree的末尾是关键字 then 标识为代码块进入I4
+            else if tree的末尾是关键字 then 标识为代码块进入I4
             else 标识为括号表达式，进入I3
         case 右括号
             逐层判断父节点是否完毕，进行上升

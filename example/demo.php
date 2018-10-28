@@ -54,9 +54,13 @@ $formulaMoney = '[金额]*[分成比例]';
 $translator = new Translator();
 $translator->setColumns($tableColumns);
 $sqlDateDiff = $translator->compile($formulaDateDiff)->translate();
+$sqlDateDiffPg = $translator->compile($formulaDateDiff)->translate(Translator::DB_PGSQL);
 $sqlMoney = $translator->compile($formulaMoney)->translate();
+$sqlMoneyPg = $translator->compile($formulaMoney)->translate(Translator::DB_PGSQL);
 
 print_r("\n发起ltv3查询计划：数值=sum(单笔利润)，维度=账号id，筛选=几日充值<=2\n");
 // 用户使用自己定义的公式组合后进行分析
 $sql = "select sum({$sqlMoney}) as ltv3, uid from demo_table where {$sqlDateDiff} < 2 group by uid";
 print_r(  "执行sql进行查询：$sql\n");
+$pgSql = "select sum({$sqlMoneyPg}) as ltv3, uid from demo_table where {$sqlDateDiffPg} < 2 group by uid";
+print_r(  "PostgreSQL为：$pgSql\n");

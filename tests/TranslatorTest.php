@@ -256,6 +256,9 @@ class TranslatorTest extends TestCase {
         }
     }
 
+    /**
+     * 测试定义的关键字
+     */
     public function testCompileStatement() {
         $translator = new Translator();
         $translator->setColumns(self::$columns);

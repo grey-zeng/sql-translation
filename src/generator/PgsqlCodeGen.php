@@ -86,7 +86,7 @@ class PgsqlCodeGen extends BaseCodeGen {
             case 'date_diff':
                 $first = self::tranPgTimestamp($params[0]['value'], $params[0]['type']);
                 $second = self::tranPgTimestamp($params[1]['value'], $params[1]['type']);
-                return "{$first}::date-{$second}::date";
+                return "({$first}::date-{$second}::date)";
             case 'if':
                 return "(case when {$params[0]['value']} IS NOT NULL then {$params[1]['value']} else {$params[2]['value']} end)";
             case 'to_date':
