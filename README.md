@@ -41,6 +41,7 @@ $input='date_diff([时间],[新登时间])';
 
 // 默认MySQL编译得到:datediff(`retime`, `first_login_time`)
 $mySqlDateDiff = $translator->compile($input)->translate();
+
 // PostgreSQL环境下为:("retime"::date-"first_login_time"::date) 
 $pgSqlDateDiff = $translator->compile($input)->translate(Translator::DB_PGSQL);
 ```
