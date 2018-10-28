@@ -18,6 +18,9 @@ class Token {
     const TYPE_BRACKETS = 'brackets';
     const TYPE_BRACKET_LEFT = '(';
     const TYPE_BRACKET_RIGHT = ')';
+    const TYPE_BRACE_LEFT = '{';
+    const TYPE_BRACE_RIGHT = '}';
+    const TYPE_VARIABLE = '@';
     const TYPE_COLUMN = 'column';
     const TYPE_NUMBER = 'number';
     const TYPE_STRING = 'string';
@@ -32,6 +35,7 @@ class Token {
 
     public $type;
     public $value;
+    /** @var Token[] */
     public $child = [];
     public $parent;
     public $translator;

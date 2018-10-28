@@ -18,9 +18,11 @@ use SQLTranslation\core\Token;
 class RegScanner {
 
     const REG_EMPTY     = '/^([\s,]+)/';
-    const REG_STATEMENT = '/^(while)(\s)?\(/';
+    const REG_STATEMENT = '/^(while|declare)(\s)?\(/';
     const REG_FUNCTION  = '/^(\w+)(\s)?\(/';
     const REG_BRACKET   = '/^(\(|\))/';
+    const REG_BRACE     = '/^({|})/';
+    const REG_VARIABLE  = '/^(@\w+)/';
     const REG_COLUMN    = '/^(\[([\x{4e00}-\x{9fa5}a-zA-Z0-9_\-]+)\])/u';   // 使用Unicode解析
     const REG_NUMBER    = '/^((-?\d+)(\.\d+){0,1})/';
     const REG_STRING    = '/^((\'|\")([\s\S]*?)(\2))/';                     // 需要非贪婪匹配
@@ -44,6 +46,7 @@ class RegScanner {
             [self::REG_NUMBER,      Token::TYPE_NUMBER,     1, 1],
             [self::REG_STRING,      Token::TYPE_STRING,     3, 1],
             [self::REG_OPERATOR,    Token::TYPE_OPERATOR,   1, 1],
+            [self::REG_VARIABLE,    Token::TYPE_VARIABLE,   1, 1],
         ];
 
         while (!empty($formula)) {
@@ -67,6 +70,15 @@ class RegScanner {
             if (preg_match(self::REG_BRACKET, $formula, $matches)) {
                 $token[] = [
                     'type' => $matches[1] == '('? Token::TYPE_BRACKET_LEFT: Token::TYPE_BRACKET_RIGHT,
+                    'value' => $matches[1]
+                ];
+                $formula = substr($formula, 1);
+                continue;
+            }
+            // 特殊处理花括号
+            if (preg_match(self::REG_BRACE, $formula, $matches)) {
+                $token[] = [
+                    'type' => $matches[1] == '{'? Token::TYPE_BRACE_LEFT: Token::TYPE_BRACE_RIGHT,
                     'value' => $matches[1]
                 ];
                 $formula = substr($formula, 1);

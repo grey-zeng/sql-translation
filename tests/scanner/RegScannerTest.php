@@ -115,6 +115,11 @@ class RegScannerTest extends TestCase {
         $this->assertEquals('|', $matches11[1]);
     }
 
+    public function testRegVARIABLE() {
+        $this->assertEquals(1, preg_match(RegScanner::REG_VARIABLE, '@num1', $matches1));
+        $this->assertEquals('@num1', $matches1[1]);
+    }
+
     public function testSplitToken() {
         // 简单的四则运算符：分成3个token
         $caseExpr = [

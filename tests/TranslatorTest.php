@@ -255,4 +255,17 @@ class TranslatorTest extends TestCase {
             $this->assertFalse(Translator::isValid($errorFormula), $errorFormula);
         }
     }
+
+    public function testCompileStatement() {
+        $translator = new Translator();
+        $translator->setColumns(self::$columns);
+        $while = [
+            'in' => // 循环和声明
+                "while(@num<1) {
+                    declare(@num, @num+1)
+                }",
+            'out' => 'while(@n0<1){@n0:=@n0+1}'
+        ];
+        $this->assertEquals($while['out'], $translator->compile($while['in'])->translate(Translator::DB_MYSQL));
+    }
 }

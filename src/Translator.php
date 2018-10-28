@@ -57,9 +57,6 @@ class Translator {
      * @throws \Exception
      */
     public function compile($originFormula) {
-        if (!self::isValid($originFormula)) {
-            throw new \Exception('公式不符合定义');
-        }
         // 通过分词器获取token列表
         $tokenList = RegScanner::splitToken($originFormula);
 //        $tokenList = DirectScanner::splitToken($originFormula);

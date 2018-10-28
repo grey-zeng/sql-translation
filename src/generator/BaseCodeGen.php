@@ -20,6 +20,8 @@ abstract class BaseCodeGen {
     /** @var string 字段包含符 */
     protected $columnWrapperSymbol = '';
 
+    protected $variables = [];
+
     public function __construct($translator) {
         $this->translator = $translator;
     }
@@ -69,8 +71,27 @@ abstract class BaseCodeGen {
             // 常规类型直接返回
             case Token::TYPE_NUMBER:
                 return $token->value;
-            // todo 关键字：用于循环、分支判断等
+            // 关键字：用于循环、分支判断、声明等
             case Token::TYPE_STATEMENT:
+                switch ($token->value) {
+                    case 'while':
+                        $condition = $this->generator(array_shift($token->child));
+                        $block = array_map(function($token) {
+                            return $this->generator($token);
+                        }, $token->child);
+                        return sprintf('while%s{%s}', $condition, join(';', $block));
+                    // todo 暂时按照mysql的定义来做
+                    case 'declare':
+                        if (empty($token->child) || empty($token->child[0]->child)) {
+                            throw new \Exception('declare error');
+                        }
+                        list($variable, $value) = $token->child[0]->child;
+                        return sprintf('%s:=%s', $this->generator($variable), $this->generator($value));
+                    default:
+                        throw new \Exception('statement:' . $token->value . ' is undefined');
+                }
+            case Token::TYPE_VARIABLE:
+                return $this->tranVariable($token->value);
             default :
                 throw new \Exception($token->type . ' is undefined');
         }
@@ -100,5 +121,17 @@ abstract class BaseCodeGen {
 
     protected function wrapperExpr($expr, $params) {
         return $params;
+    }
+
+    /**
+     * 对变量进行转义
+     * @param $name
+     * @return string
+     */
+    protected function tranVariable($name) {
+        if (!isset($this->variables[$name])) {
+            $this->variables[$name] = ('@n' . count($this->variables));
+        }
+        return $this->variables[$name];
     }
 }
